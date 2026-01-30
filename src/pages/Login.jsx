@@ -5,7 +5,7 @@ import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://fossee-chemicalapp-production.up.railway.app/api";
 
-export default function Login() {
+export default function Login({ onLoginSuccess }) {
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -19,7 +19,8 @@ export default function Login() {
             const res = await axios.post(`${API_BASE_URL}/token/`, formData);
             localStorage.setItem('auth_token', res.data.access);
             localStorage.setItem('refresh_token', res.data.refresh);
-            navigate('/dashboard');
+            if (onLoginSuccess) onLoginSuccess();
+            navigate('/dashboard', { replace: true });
         } catch (err) {
             setError(err.response?.data?.detail || "Invalid credentials");
         } finally {
