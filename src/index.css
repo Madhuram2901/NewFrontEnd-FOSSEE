@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --color-app-bg: #CDB885;
+    --color-app-surface: #EFE1B5;
+    --color-primary: #000000;
+}
+
+@layer base {
+    body {
+        @apply bg-app-bg text-content-main min-h-screen;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+@layer components {
+    .glass-card {
+        @apply bg-app-surface/90 backdrop-blur-sm shadow-premium border border-white/10;
+    }
+
+    .btn-primary {
+        @apply px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all font-medium;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-app-bg;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-black/10 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-black/20;
+}
