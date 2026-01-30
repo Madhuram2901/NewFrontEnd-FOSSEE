@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { LogOut, LayoutDashboard, History, Info, Settings, FileUp, Download, Eye, EyeOff, RotateCcw } from "lucide-react";
+import { LogOut, History, RotateCcw } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import StatCard from "../components/StatCard";
 import ChartSection from "../components/ChartSection";
@@ -14,7 +14,6 @@ export default function Dashboard() {
     const [summary, setSummary] = useState(null);
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [fetchingHistory, setFetchingHistory] = useState(false);
     const [selectedDatasetId, setSelectedDatasetId] = useState(null);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
@@ -37,7 +36,6 @@ export default function Dashboard() {
     };
 
     const fetchHistory = async () => {
-        setFetchingHistory(true);
         try {
             const res = await axios.get(`${API_BASE_URL}/history/`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -50,7 +48,7 @@ export default function Dashboard() {
             if (err.response?.status === 401) handleLogout();
             else setError("Failed to fetch history");
         } finally {
-            setFetchingHistory(false);
+            // Loading handle
         }
     };
 

@@ -3,13 +3,9 @@ import {
     CategoryScale,
     LinearScale,
     BarElement,
-    Title,
     Tooltip,
     Legend,
-    PointElement,
-    LineElement,
     ArcElement,
-    Filler
 } from 'chart.js';
 import { Bar, Pie } from 'react-chartjs-2';
 
@@ -17,13 +13,9 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
-    Title,
     Tooltip,
     Legend,
-    PointElement,
-    LineElement,
-    ArcElement,
-    Filler
+    ArcElement
 );
 
 export default function ChartSection({ data }) {
