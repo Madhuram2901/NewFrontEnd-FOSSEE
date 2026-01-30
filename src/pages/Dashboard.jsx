@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { LogOut, History, RotateCcw } from "lucide-react";
+import { LogOut, History, RotateCcw, Download, Info, Settings, FileText } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import StatCard from "../components/StatCard";
 import ChartSection from "../components/ChartSection";
@@ -95,6 +95,30 @@ export default function Dashboard() {
         }
     };
 
+    const handleDownloadReport = async () => {
+        if (!selectedDatasetId || !token) return;
+        setLoading(true);
+        try {
+            const response = await axios.get(`${API_BASE_URL}/report/${selectedDatasetId}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: 'blob',
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `report_${selectedDatasetId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setSuccessMessage("Report downloaded successfully!");
+        } catch (err) {
+            setError("Failed to download report. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="flex h-screen overflow-hidden bg-app-bg">
             <Sidebar activeView={activeView} setActiveView={setActiveView} />
@@ -107,6 +131,16 @@ export default function Dashboard() {
                     </div>
 
                     <div className="flex items-center gap-6">
+                        {summary && activeView === 'dashboard' && (
+                            <button
+                                onClick={handleDownloadReport}
+                                disabled={loading}
+                                className="flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest bg-black text-white rounded-xl hover:opacity-80 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                <Download size={14} />
+                                Export PDF
+                            </button>
+                        )}
                         <div className="text-right">
                             <p className="text-sm font-semibold">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                             <p className="text-[10px] text-black/40 font-bold uppercase tracking-wider">System Status: Active</p>
@@ -178,12 +212,14 @@ export default function Dashboard() {
                                                     onClick={() => handleSelectDataset(item.id)}
                                                     className={`w-full text-left p-4 rounded-2xl transition-all duration-300 border-2 ${selectedDatasetId === item.id ? 'bg-black border-black text-white shadow-xl translate-x-1' : 'bg-black/5 border-transparent hover:bg-black/10'}`}
                                                 >
-                                                    <p className="text-xs font-black uppercase tracking-tight truncate">{item.original_filename}</p>
-                                                    <div className="flex items-center justify-between mt-2">
-                                                        <span className={`text-[10px] font-bold ${selectedDatasetId === item.id ? 'text-white/40' : 'text-black/30'}`}>
-                                                            {new Date(item.uploaded_at).toLocaleDateString()}
+                                                    <p className="text-xs font-black uppercase tracking-tight truncate">
+                                                        {item.original_filename || item.filename || item.name || `Dataset #${item.id}`}
+                                                    </p>
+                                                    <div className="flex items-center justify-between mt-1">
+                                                        <span className={`text-[9px] font-bold ${selectedDatasetId === item.id ? 'text-white/40' : 'text-black/30'} uppercase`}>
+                                                            Ready for Analysis
                                                         </span>
-                                                        <div className={`w-1.5 h-1.5 rounded-full ${selectedDatasetId === item.id ? 'bg-white' : 'bg-black/20'}`} />
+                                                        <div className={`w-1 h-1 rounded-full ${selectedDatasetId === item.id ? 'bg-white' : 'bg-black/20'}`} />
                                                     </div>
                                                 </button>
                                             )) : (
@@ -201,16 +237,20 @@ export default function Dashboard() {
                             <h2 className="text-2xl font-black">Extended History</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {history.map(item => (
-                                    <div key={item.id} className="glass-card p-6 rounded-3xl flex flex-col justify-between">
+                                    <div key={item.id} className="glass-card p-6 rounded-3xl flex flex-col justify-between border border-black/5 hover:border-black/20 transition-all">
                                         <div>
-                                            <p className="text-sm font-black truncate mb-2">{item.original_filename}</p>
-                                            <p className="text-xs text-black/40 font-bold uppercase">{new Date(item.uploaded_at).toLocaleString()}</p>
+                                            <p className="text-sm font-black truncate mb-1">
+                                                {item.original_filename || item.filename || item.name || `Dataset #${item.id}`}
+                                            </p>
+                                            <p className="text-[10px] text-black/40 font-bold uppercase tracking-widest">
+                                                ID: {item.id} • {new Date(item.uploaded_at).toLocaleDateString()}
+                                            </p>
                                         </div>
                                         <button
                                             onClick={() => { setActiveView('dashboard'); handleSelectDataset(item.id); }}
-                                            className="mt-6 text-[10px] font-black uppercase tracking-widest bg-black text-white py-2 rounded-xl text-center hover:opacity-80 transition-opacity"
+                                            className="mt-6 text-[10px] font-black uppercase tracking-widest bg-black text-white py-3 rounded-xl text-center hover:opacity-80 transition-opacity active:scale-95"
                                         >
-                                            Load into Dashboard
+                                            Analyze Dataset
                                         </button>
                                     </div>
                                 ))}
