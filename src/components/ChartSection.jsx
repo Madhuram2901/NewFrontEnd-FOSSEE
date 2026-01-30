@@ -72,9 +72,21 @@ export default function ChartSection({ data }) {
             {
                 data: Object.values(data.type_distribution),
                 backgroundColor: [
-                    '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899'
+                    '#10b981', // Emerald
+                    '#f59e0b', // Amber
+                    '#ef4444', // Red
+                    '#3b82f6', // Blue
+                    '#8b5cf6', // Violet
+                    '#ec4899', // Pink
+                    '#06b6d4', // Cyan
+                    '#f97316', // Orange
+                    '#14b8a6', // Teal
+                    '#a855f7', // Purple
+                    '#eab308', // Yellow
+                    '#6366f1', // Indigo
                 ],
-                borderWidth: 0,
+                borderWidth: 2,
+                borderColor: '#EFE1B5',
             },
         ],
     };

@@ -17,6 +17,7 @@ export default function Dashboard() {
     const [selectedDatasetId, setSelectedDatasetId] = useState(null);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
+    const [activeView, setActiveView] = useState('dashboard');
 
     // Auth
     const token = localStorage.getItem('auth_token');
@@ -96,13 +97,13 @@ export default function Dashboard() {
 
     return (
         <div className="flex h-screen overflow-hidden bg-app-bg">
-            <Sidebar />
+            <Sidebar activeView={activeView} setActiveView={setActiveView} />
 
             <main className="flex-1 flex flex-col overflow-hidden">
                 <header className="h-20 bg-app-surface/50 backdrop-blur-md border-b border-black/5 flex items-center justify-between px-10 shrink-0">
                     <div>
-                        <h1 className="text-xl font-bold text-black leading-tight">Dashboard</h1>
-                        <p className="text-xs text-black/60 font-medium">Chemical Equipment Analytics</p>
+                        <h1 className="text-xl font-bold text-black uppercase tracking-tighter capitalize">{activeView}</h1>
+                        <p className="text-xs text-black/60 font-medium tracking-wide">Chemical Equipment Suite</p>
                     </div>
 
                     <div className="flex items-center gap-6">
@@ -120,76 +121,136 @@ export default function Dashboard() {
                 </header>
 
                 <div className="flex-1 overflow-y-auto p-10">
-                    {/* Error/Success Feed */}
-                    {error && (
-                        <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-600 flex items-center justify-between animate-in fade-in slide-in-from-top-4">
-                            <span className="text-sm font-medium">{error}</span>
-                            <button onClick={() => setError(null)} className="text-xs font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">Dismiss</button>
-                        </div>
-                    )}
+                    {activeView === 'dashboard' && (
+                        <>
+                            {/* Error/Success Feed */}
+                            {error && (
+                                <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-600 flex items-center justify-between animate-in fade-in slide-in-from-top-4">
+                                    <span className="text-sm font-medium">{error}</span>
+                                    <button onClick={() => setError(null)} className="text-xs font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">Dismiss</button>
+                                </div>
+                            )}
 
-                    {successMessage && (
-                        <div className="mb-8 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl text-green-600 flex items-center justify-between animate-in fade-in slide-in-from-top-4">
-                            <span className="text-sm font-medium">{successMessage}</span>
-                            <button onClick={() => setSuccessMessage(null)} className="text-xs font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">Dismiss</button>
-                        </div>
-                    )}
+                            {successMessage && (
+                                <div className="mb-8 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl text-green-600 flex items-center justify-between animate-in fade-in slide-in-from-top-4">
+                                    <span className="text-sm font-medium">{successMessage}</span>
+                                    <button onClick={() => setSuccessMessage(null)} className="text-xs font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">Dismiss</button>
+                                </div>
+                            )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 shrink-0">
-                        <StatCard title="Total Equipment" value={summary?.total_equipment || "—"} unit="Units" />
-                        <StatCard title="Avg Flowrate" value={summary?.averages?.flowrate || "—"} unit="m³/h" color="text-flowrate" />
-                        <StatCard title="Avg Pressure" value={summary?.averages?.pressure || "—"} unit="bar" color="text-pressure" />
-                        <StatCard title="Avg Temperature" value={summary?.averages?.temperature || "—"} unit="°C" color="text-temperature" />
-                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 shrink-0">
+                                <StatCard title="Total Equipment" value={summary?.total_equipment || "—"} unit="Units" />
+                                <StatCard title="Avg Flowrate" value={summary?.averages?.flowrate || "—"} unit="m³/h" color="text-flowrate" />
+                                <StatCard title="Avg Pressure" value={summary?.averages?.pressure || "—"} unit="bar" color="text-pressure" />
+                                <StatCard title="Avg Temperature" value={summary?.averages?.temperature || "—"} unit="°C" color="text-temperature" />
+                            </div>
 
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                        <div className="xl:col-span-2 space-y-8">
-                            {/* Content area for Charts/Tables */}
-                            {summary && <ChartSection data={summary} />}
-                            {!summary && !loading && (
-                                <div className="h-64 glass-card rounded-[2.5rem] flex flex-col items-center justify-center p-10 border-2 border-dashed border-black/5">
-                                    <div className="w-16 h-16 bg-black/5 rounded-full flex items-center justify-center mb-4">
-                                        <RotateCcw className="text-black/20" size={32} />
+                            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                                <div className="xl:col-span-2 space-y-8">
+                                    {summary && <ChartSection data={summary} />}
+                                    {!summary && !loading && (
+                                        <div className="h-64 glass-card rounded-[2.5rem] flex flex-col items-center justify-center p-10 border-2 border-dashed border-black/5">
+                                            <div className="w-16 h-16 bg-black/5 rounded-full flex items-center justify-center mb-4">
+                                                <RotateCcw className="text-black/20" size={32} />
+                                            </div>
+                                            <p className="text-sm font-bold text-black/40">Awaiting System Data</p>
+                                        </div>
+                                    )}
+                                    {loading && !summary && (
+                                        <div className="h-64 glass-card rounded-[2.5rem] flex flex-col items-center justify-center p-10">
+                                            <div className="w-10 h-10 border-4 border-black/10 border-t-black rounded-full animate-spin" />
+                                            <p className="text-sm font-bold text-black/40 mt-4">Analyzing Dataset...</p>
+                                        </div>
+                                    )}
+                                    {summary && <DataTable rows={summary.table} />}
+                                </div>
+
+                                <div className="space-y-8">
+                                    <UploadForm onUpload={handleUpload} loading={loading} />
+                                    <div className="glass-card rounded-[2rem] p-8">
+                                        <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                                            <History size={18} className="text-black/40" /> Recent Runs
+                                        </h3>
+                                        <div className="space-y-3">
+                                            {history.length > 0 ? history.map(item => (
+                                                <button
+                                                    key={item.id}
+                                                    onClick={() => handleSelectDataset(item.id)}
+                                                    className={`w-full text-left p-4 rounded-2xl transition-all duration-300 border-2 ${selectedDatasetId === item.id ? 'bg-black border-black text-white shadow-xl translate-x-1' : 'bg-black/5 border-transparent hover:bg-black/10'}`}
+                                                >
+                                                    <p className="text-xs font-black uppercase tracking-tight truncate">{item.original_filename}</p>
+                                                    <div className="flex items-center justify-between mt-2">
+                                                        <span className={`text-[10px] font-bold ${selectedDatasetId === item.id ? 'text-white/40' : 'text-black/30'}`}>
+                                                            {new Date(item.uploaded_at).toLocaleDateString()}
+                                                        </span>
+                                                        <div className={`w-1.5 h-1.5 rounded-full ${selectedDatasetId === item.id ? 'bg-white' : 'bg-black/20'}`} />
+                                                    </div>
+                                                </button>
+                                            )) : (
+                                                <p className="text-[10px] font-bold text-black/30 text-center py-4 uppercase">No history found</p>
+                                            )}
+                                        </div>
                                     </div>
-                                    <p className="text-sm font-bold text-black/40">Awaiting System Data</p>
                                 </div>
-                            )}
+                            </div>
+                        </>
+                    )}
 
-                            {loading && !summary && (
-                                <div className="h-64 glass-card rounded-[2.5rem] flex flex-col items-center justify-center p-10">
-                                    <div className="w-10 h-10 border-4 border-black/10 border-t-black rounded-full animate-spin" />
-                                    <p className="text-sm font-bold text-black/40 mt-4">Analyzing Dataset...</p>
-                                </div>
-                            )}
-
-                            {summary && <DataTable rows={summary.table} />}
-                        </div>
-
+                    {activeView === 'history' && (
                         <div className="space-y-8">
-                            {/* Sidebar tools */}
-                            <UploadForm onUpload={handleUpload} loading={loading} />
-
-                            <div className="glass-card rounded-3xl p-8">
-                                <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                                    <History size={18} /> Recent Runs
-                                </h3>
-                                <div className="space-y-3">
-                                    {history.map(item => (
+                            <h2 className="text-2xl font-black">Extended History</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {history.map(item => (
+                                    <div key={item.id} className="glass-card p-6 rounded-3xl flex flex-col justify-between">
+                                        <div>
+                                            <p className="text-sm font-black truncate mb-2">{item.original_filename}</p>
+                                            <p className="text-xs text-black/40 font-bold uppercase">{new Date(item.uploaded_at).toLocaleString()}</p>
+                                        </div>
                                         <button
-                                            key={item.id}
-                                            onClick={() => handleSelectDataset(item.id)}
-                                            className={`w-full text-left p-4 rounded-2xl transition-all duration-300 ${selectedDatasetId === item.id ? 'bg-black text-white' : 'bg-black/5 hover:bg-black/10'}`}
+                                            onClick={() => { setActiveView('dashboard'); handleSelectDataset(item.id); }}
+                                            className="mt-6 text-[10px] font-black uppercase tracking-widest bg-black text-white py-2 rounded-xl text-center hover:opacity-80 transition-opacity"
                                         >
-                                            <p className="text-sm font-bold truncate">{item.original_filename}</p>
-                                            <p className={`text-[10px] ${selectedDatasetId === item.id ? 'text-white/60' : 'text-black/40'} font-medium mt-0.5`}>
-                                                {new Date(item.uploaded_at).toLocaleString()}
-                                            </p>
+                                            Load into Dashboard
                                         </button>
-                                    ))}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeView === 'analytics' && (
+                        <div className="h-full flex flex-col items-center justify-center p-20 text-center">
+                            <div className="w-24 h-24 bg-black/5 rounded-full flex items-center justify-center mb-8">
+                                <Info size={48} className="text-black/20" />
+                            </div>
+                            <h2 className="text-3xl font-black mb-4">Advanced Analytics</h2>
+                            <p className="text-black/40 font-medium max-w-md">Detailed cross-equipment efficiency correlations and predictive maintenance logs will appear here in the next update.</p>
+                            <button onClick={() => setActiveView('dashboard')} className="mt-8 btn-primary">Return Home</button>
+                        </div>
+                    )}
+
+                    {activeView === 'settings' && (
+                        <div className="max-w-2xl mx-auto space-y-12 py-10">
+                            <h2 className="text-3xl font-black">System Settings</h2>
+                            <div className="space-y-6">
+                                <div className="glass-card p-8 rounded-[2rem]">
+                                    <h4 className="font-bold mb-4">API Configuration</h4>
+                                    <div className="p-4 bg-black/5 rounded-xl font-mono text-xs text-black/50 break-all">
+                                        {API_BASE_URL}
+                                    </div>
+                                </div>
+                                <div className="glass-card p-8 rounded-[2rem]">
+                                    <h4 className="font-bold mb-4">User Preferences</h4>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-medium">Automatic unit conversion</span>
+                                        <div className="w-12 h-6 bg-black rounded-full relative">
+                                            <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </main>
         </div>
