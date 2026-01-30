@@ -3,9 +3,13 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 
-function App() {
+// A simple wrapper to check auth on every navigation
+const ProtectedRoute = ({ children }) => {
     const isAuthenticated = !!localStorage.getItem('auth_token');
+    return isAuthenticated ? children : <Navigate to="/login" />;
+};
 
+function App() {
     return (
         <Router>
             <Routes>
@@ -13,7 +17,11 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route
                     path="/dashboard"
-                    element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
                 />
                 <Route path="/" element={<Navigate to="/dashboard" />} />
             </Routes>
