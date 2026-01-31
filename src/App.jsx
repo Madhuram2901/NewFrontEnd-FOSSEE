@@ -1,36 +1,29 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 
+// A simple wrapper to check auth on every navigation
+const ProtectedRoute = ({ children }) => {
+    const isAuthenticated = !!localStorage.getItem('auth_token');
+    return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('auth_token'));
-
-    // Listen for storage changes (optional, but good for multi-tab)
-    useEffect(() => {
-        const handleStorageChange = () => {
-            setIsAuthenticated(!!localStorage.getItem('auth_token'));
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
-
-    // A refresh function we can call after login
-    const checkAuth = () => {
-        setIsAuthenticated(!!localStorage.getItem('auth_token'));
-    };
-
     return (
         <Router>
             <Routes>
-                <Route path="/login" element={<Login onLoginSuccess={checkAuth} />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route
                     path="/dashboard"
-                    element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />}
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
                 />
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/" element={<Navigate to="/dashboard" />} />
             </Routes>
         </Router>
     );

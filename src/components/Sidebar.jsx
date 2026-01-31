@@ -1,9 +1,10 @@
-import React from 'react';
-import { LayoutDashboard, History, Info, Settings, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, History, Info, Settings, HelpCircle, AlertTriangle, TrendingUp } from 'lucide-react';
 
 export default function Sidebar({ activeView, setActiveView }) {
     const navItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { id: 'risk', icon: AlertTriangle, label: 'Risk Analysis' },
+        { id: 'trends', icon: TrendingUp, label: 'Trends' },
         { id: 'history', icon: History, label: 'History' },
         { id: 'analytics', icon: Info, label: 'Analytics' },
         { id: 'settings', icon: Settings, label: 'Settings' },
