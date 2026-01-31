@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { LogOut, History, RotateCcw, Download, Info, Settings, FileText } from "lucide-react";
+import { LogOut, History, RotateCcw, Download, Info, Settings, FileText, AlertTriangle } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import StatCard from "../components/StatCard";
 import ChartSection from "../components/ChartSection";
 import UploadForm from "../components/UploadForm";
 import DataTable from "../components/DataTable";
+import RiskAnalysis from "../components/RiskAnalysis";
+import AnalyticsView from "../components/AnalyticsView";
+import TrendsView from "../components/TrendsView";
+import { Sparkles, BarChart3, TrendingUp as TrendIcon, Zap } from "lucide-react";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://fossee-chemicalapp-production.up.railway.app/api";
 
@@ -172,7 +176,7 @@ export default function Dashboard() {
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 shrink-0">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 shrink-0">
                                 <StatCard title="Total Equipment" value={summary?.total_equipment || "—"} unit="Units" />
                                 <StatCard title="Avg Flowrate" value={summary?.averages?.flowrate || "—"} unit="m³/h" color="text-flowrate" />
                                 <StatCard title="Avg Pressure" value={summary?.averages?.pressure || "—"} unit="bar" color="text-pressure" />
@@ -180,8 +184,13 @@ export default function Dashboard() {
                             </div>
 
                             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                                <div className="xl:col-span-2 space-y-8">
-                                    {summary && <ChartSection data={summary} />}
+                                <div className="xl:col-span-2 space-y-10">
+                                    {summary && (
+                                        <div className="space-y-10">
+                                            <ChartSection data={summary} />
+
+                                        </div>
+                                    )}
                                     {!summary && !loading && (
                                         <div className="h-64 glass-card rounded-[2.5rem] flex flex-col items-center justify-center p-10 border-2 border-dashed border-black/5">
                                             <div className="w-16 h-16 bg-black/5 rounded-full flex items-center justify-center mb-4">
@@ -229,6 +238,40 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Feature 5: AI Insights Generator */}
+                            {summary && (
+                                <div className="mt-10 p-8 glass-card rounded-[2.5rem] bg-gradient-to-br from-black/[0.02] to-transparent border-black/5 relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-700">
+                                        <Sparkles size={120} />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white">
+                                                <Zap size={16} fill="currentColor" />
+                                            </div>
+                                            <h3 className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                                                Automated System Insights
+                                                <span className="text-blue-500 lowercase opacity-60 font-medium tracking-normal text-[10px]">(powered by Gemini)</span>
+                                            </h3>
+                                        </div>
+                                        <div className="space-y-3 max-w-4xl">
+                                            {(summary.ai_insights || `• System operating with ${summary.total_equipment} units. • Average thermal load stable at ${summary.averages.temperature}°C.`).split(/[•*-]/).filter(p => p.trim()).map((point, i) => (
+                                                <div key={i} className="flex items-start gap-3">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
+                                                    <p className="text-sm font-bold text-black/70 leading-relaxed italic">
+                                                        {point.trim().split(/(\d+(?:\.\d+)?%?)/).map((part, j) =>
+                                                            /(\d+(?:\.\d+)?%?)/.test(part) ?
+                                                                <span key={j} className="text-emerald-500 font-black">{part}</span> :
+                                                                part
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </>
                     )}
 
@@ -258,15 +301,28 @@ export default function Dashboard() {
                         </div>
                     )}
 
-                    {activeView === 'analytics' && (
-                        <div className="h-full flex flex-col items-center justify-center p-20 text-center">
-                            <div className="w-24 h-24 bg-black/5 rounded-full flex items-center justify-center mb-8">
-                                <Info size={48} className="text-black/20" />
+                    {activeView === 'risk' && (
+                        summary ? <RiskAnalysis data={summary} /> : (
+                            <div className="flex flex-col items-center justify-center p-20 text-center opacity-50">
+                                <AlertTriangle size={48} className="mb-4" />
+                                <h3 className="text-xl font-bold">No Dataset Selected</h3>
+                                <p className="text-sm">Please select a run from the Dashboard or History to perform risk analysis.</p>
+                                <button onClick={() => setActiveView('dashboard')} className="mt-6 px-6 py-2 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest">Go to Dashboard</button>
                             </div>
-                            <h2 className="text-3xl font-black mb-4">Advanced Analytics</h2>
-                            <p className="text-black/40 font-medium max-w-md">Detailed cross-equipment efficiency correlations and predictive maintenance logs will appear here in the next update.</p>
-                            <button onClick={() => setActiveView('dashboard')} className="mt-8 btn-primary">Return Home</button>
-                        </div>
+                        )
+                    )}
+
+                    {activeView === 'trends' && <TrendsView history={history} token={token} />}
+
+                    {activeView === 'analytics' && (
+                        summary ? <AnalyticsView data={summary} /> : (
+                            <div className="flex flex-col items-center justify-center p-20 text-center opacity-50">
+                                <BarChart3 size={48} className="mb-4" />
+                                <h3 className="text-xl font-bold">No Data for Correlation</h3>
+                                <p className="text-sm">Select a dataset to visualize parameter relationships.</p>
+                                <button onClick={() => setActiveView('dashboard')} className="mt-6 px-6 py-2 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest">Go to Dashboard</button>
+                            </div>
+                        )
                     )}
 
                     {activeView === 'settings' && (
@@ -292,7 +348,7 @@ export default function Dashboard() {
                         </div>
                     )}
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     );
 }
