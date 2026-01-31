@@ -142,9 +142,9 @@ export default function AnalyticsView({ data }) {
                         <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">Correlation Score</p>
                         <h4 className="text-4xl font-black mb-4">{correlation.label}</h4>
                         <p className="text-sm font-medium text-white/60 leading-relaxed">
-                            {correlation.score !== "Insuff. Data"
+                            {data.analytics_insight || (correlation.score !== "Insuff. Data"
                                 ? `Statistical relationship coefficient R=${correlation.score} indicates a ${correlation.label.toLowerCase()} link in this dataset.`
-                                : "Add more equipment data to calculate precise parameter relationships."}
+                                : "Add more equipment data to calculate precise parameter relationships.")}
                         </p>
                     </div>
 

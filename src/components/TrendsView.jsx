@@ -156,8 +156,7 @@ export default function TrendsView({ history, token }) {
                 <div className="glass-card p-8 rounded-[2.5rem] bg-black text-white">
                     <h4 className="font-black mb-4 uppercase tracking-tighter text-white/40">Historical Summary</h4>
                     <p className="text-sm font-medium leading-relaxed opacity-60">
-                        Based on the last {trendData.labels.length} runs, your plant maintains high pressure stability.
-                        Flowrates show slight seasonal variance but remain within operational limits.
+                        {summaries[0]?.trends_insight || `Based on the last ${trendData.labels.length} runs, your plant maintains high pressure stability. Flowrates show slight seasonal variance but remain within operational limits.`}
                     </p>
                 </div>
             </div>
