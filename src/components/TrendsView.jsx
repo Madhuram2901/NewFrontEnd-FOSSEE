@@ -27,6 +27,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "https://fossee-chemicalapp
 
 export default function TrendsView({ history, token }) {
     const [trendData, setTrendData] = useState(null);
+    const [aiSummary, setAiSummary] = useState(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -51,6 +52,9 @@ export default function TrendsView({ history, token }) {
                     setTrendData(null);
                     return;
                 }
+
+                // Get AI summary from the latest run in history (first in the list after sort)
+                setAiSummary(summaries[summaries.length - 1]?.trends_insight);
 
                 setTrendData({
                     labels: summaries.map((s, i) => {
@@ -156,7 +160,7 @@ export default function TrendsView({ history, token }) {
                 <div className="glass-card p-8 rounded-[2.5rem] bg-black text-white">
                     <h4 className="font-black mb-4 uppercase tracking-tighter text-white/40">Historical Summary</h4>
                     <p className="text-sm font-medium leading-relaxed opacity-60">
-                        {summaries[0]?.trends_insight || `Based on the last ${trendData.labels.length} runs, your plant maintains high pressure stability. Flowrates show slight seasonal variance but remain within operational limits.`}
+                        {aiSummary || `Based on the last ${trendData.labels.length} runs, your plant maintains high pressure stability. Flowrates show slight seasonal variance but remain within operational limits.`}
                     </p>
                 </div>
             </div>
